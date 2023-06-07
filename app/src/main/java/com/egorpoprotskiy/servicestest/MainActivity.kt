@@ -18,6 +18,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         binding.simpleService.setOnClickListener {
+            //остановка сервиса снаружи(по нажатию кнопки)
+            stopService(MyForegroundService.newIntent(this))
             //функция запуска сервиса
             startService(MyService.newIntent(this, 25))
         }
@@ -26,6 +28,9 @@ class MainActivity : AppCompatActivity() {
 //            showNotification()
             //ContextCompat - проверяет версию API(если >=26, то вызывает функцию startForegroundService, если <26, то функия startService)
             ContextCompat.startForegroundService(this, MyForegroundService.newIntent(this))
+        }
+        binding.intentService.setOnClickListener {
+            ContextCompat.startForegroundService(this, MyIntentService.newIntent(this))
         }
     }
 //    //Уведомление пользователю
