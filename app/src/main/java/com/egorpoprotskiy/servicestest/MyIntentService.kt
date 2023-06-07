@@ -1,5 +1,6 @@
 package com.egorpoprotskiy.servicestest
 
+import android.app.IntentService
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
@@ -17,38 +18,28 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-class MyForegroundService: Service() {
-
-    private val coroutineScope = CoroutineScope(Dispatchers.Main)
+class MyIntentService: IntentService(NAME) {
 
     override fun onCreate() {
         super.onCreate()
         log("onCreate")
+        //на случай, если система убивает сервис(true - аналог START_REDELIVER_INTENT, false - аналог START_STICKY
+        setIntentRedelivery(true)
         createNotificationChannel()
         startForeground(NOTIFICATION_ID, createNotification())
     }
 
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+    override fun onHandleIntent(intent: Intent?) {
         log("onStartCommand")
-        coroutineScope.launch {
-            for (i in 0 until 100) {
-                delay(1000)
-                log("Timer $i")
-            }
-            //остановка сервиса из самого сервиса
-            stopSelf()
+        for (i in 0 until 20) {
+            Thread.sleep(1000)
+            log("Timer $i")
         }
-        return START_STICKY
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        coroutineScope.cancel()
         log("onDestroy")
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        TODO("Not yet implemented")
     }
 
     private fun log(message: String) {
@@ -84,12 +75,13 @@ class MyForegroundService: Service() {
 
     companion object {
         fun newIntent(context: Context): Intent {
-            return Intent(context, MyForegroundService::class.java)
+            return Intent(context, MyIntentService::class.java)
         }
 
         private const val CHANNEL_ID = "channel_id"
         private const val CHANNEL_NAME = "channel_name"
         private const val NOTIFICATION_ID = 1
+        private const val NAME = "MyIntentService"
     }
 
 }
